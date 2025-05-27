@@ -3,7 +3,6 @@ import sympy as sy
 import random
 from manim import *
 from manim_slides import Slide
-from shapely.geometry import LineString
 import numpy as np
 from scipy.stats import norm
 
