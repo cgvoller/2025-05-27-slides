@@ -446,7 +446,7 @@ class Main(Slide,MovingCameraScene):
         x = axes.get_x_axis()
         x.numbers.set_color(BLACK)
         x_label = Tex("Analysis (k)").next_to(axes.x_axis, DOWN, buff=0.5)
-        y_label = MathTex("Z_k").next_to(axes.y_axis, LEFT, buff=0.1)
+        y_label = MathTex("Z_k").next_to(axes.y_axis, LEFT)
         
         self.play(
             self.camera.frame.animate.move_to(axes)
@@ -589,7 +589,8 @@ class Main(Slide,MovingCameraScene):
             self.camera.frame.animate.set(width=config.frame_width).move_to(ORIGIN),
             run_time=2  # Optional: adjust duration
         )
-        self.play(Transform(title, title2))
+        slide_number = self.update_slide_number()
+        self.play(Transform(title, title2),slide_number)
 
 # Group everything to scale and shift
         graph_group = VGroup(newaxes, x_label, y_label, graph)
@@ -640,7 +641,7 @@ class Main(Slide,MovingCameraScene):
         latex_eq.next_to(prior_group,DOWN, aligned_edge=LEFT, buff=0.5)
         self.play(Write(latex_eq))
         self.next_slide()
-        ratio_text = MathTex(r"\text{Ratio }= a^{\theta/\delta}", font_size=28,color=BLACK)
+        ratio_text = MathTex(r"\text{Ratio }= \frac{I_1}{I_2} = a^{\theta/2\delta}", font_size=28,color=BLACK)
         ratio_text.next_to(latex_eq,DOWN, aligned_edge=LEFT, buff=0.5)
         self.play(Write(ratio_text))
         self.next_slide()
