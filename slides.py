@@ -329,7 +329,7 @@ class Main(Slide,MovingCameraScene):
         )
 
         self.play(GrowArrow(arrow_from_treatment), GrowArrow(arrow_from_control))
-
+        self.next_slide()  
         p = 0.5  # Example probability
         chart = BarChart(
             values=[p * 100, (1 - p) * 100],  # Convert to percentages
@@ -407,17 +407,13 @@ class Main(Slide,MovingCameraScene):
         )
         self.wait()
         self.next_slide()
-        #self.mobjects.remove(self.camera.frame)
-        keep = [title, logo, slide_number]
-
-        for mob in self.mobjects[:]:  # [:] to clone the list since we're modifying it
-            if mob not in keep:
-                self.play(FadeOut(mob))
-        
-        self.play(
-            self.camera.frame.animate.move_to(ORIGIN)
-        )
-        self.next_slide()
+        #self.mobjects.remove(self.camera.frame)        
+        #keep = [title, logo, slide_number]
+        #
+        #for mob in self.mobjects[:]:  # [:] to clone the list since we're modifying it
+        #    if mob not in keep:
+        #        self.remove(mob)
+        #self.next_slide()
 
         # Boundary
         # Define k values and boundaries (boundaries start at k=1)
@@ -446,11 +442,17 @@ class Main(Slide,MovingCameraScene):
                 "decimal_number_config": {"color": BLACK}
             }
         )
+        axes.next_to(cohort, DOWN, buff=1.5)
         x = axes.get_x_axis()
         x.numbers.set_color(BLACK)
         x_label = Tex("Analysis (k)").next_to(axes.x_axis, DOWN, buff=0.5)
         y_label = MathTex("Z_k").next_to(axes.y_axis, LEFT, buff=0.1)
         
+        self.play(
+            self.camera.frame.animate.move_to(axes)
+        )
+        self.wait()
+
         self.play(Create(axes),Write(x_label), Write(y_label))
 
         # Plot boundaries (starting at k=1)
@@ -537,6 +539,17 @@ class Main(Slide,MovingCameraScene):
         self.wait()
         self.next_slide()
 
+        boundary_group = VGroup(axes, a_crit_line, b_crit_line, reject_text, accept_text, continue_text,
+                        blue_region, red_region, green_region, left_blue_strip, x_label, y_label)
+        everything = VGroup(cohort, treatment_label, control_label, interim_text, chart_group, hsl_variables, boundary_group)
+        target_center = everything.get_center()
+        target_width = everything.width
+        target_height = everything.height
+        zoom_out_factor = max(target_width / config.frame_width, target_height / config.frame_height)
+        self.play(
+            self.camera.frame.animate.set(width=zoom_out_factor * config.frame_width).move_to(target_center),
+            run_time=2
+        )
         #self.mobjects.remove(self.camera.frame)
         keep = [title, logo, slide_number,axes]
 
@@ -544,9 +557,8 @@ class Main(Slide,MovingCameraScene):
             if mob not in keep:
                 self.remove(mob)
         
-        self.play(
-            self.camera.frame.animate.move_to(ORIGIN)
-        )
+        title2 = Text("Leveraging Uncertainty", font_size=48, color=BLACK)
+        title2.to_corner(UL)  # Positions it at the top center of the screen
         mu = 1
         sigma = 1
 
@@ -572,6 +584,11 @@ class Main(Slide,MovingCameraScene):
         self.add(x_label, y_label, graph)
         self.wait()
 
+        self.play(
+            self.camera.frame.animate.set(width=config.frame_width).move_to(ORIGIN),
+            run_time=2  # Optional: adjust duration
+        )
+        self.play(Transform(title, title2))
 
 # Group everything to scale and shift
         graph_group = VGroup(newaxes, x_label, y_label, graph)
