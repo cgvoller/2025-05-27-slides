@@ -283,7 +283,7 @@ class Main(Slide,MovingCameraScene):
                   GrowArrow(arrow_to_control),
                   Write(p_label),
                   Write(one_minus_p_label))
-        self.wait(2)
+        self.wait(0.5)
 
         self.next_slide()
 
@@ -398,12 +398,12 @@ class Main(Slide,MovingCameraScene):
         self.play(
             ChangeDecimalToValue(h_dn, 70),
             ChangeDecimalToValue(s_dn, 30),
-         run_time=3
+         run_time=2
         )
         self.play(
             ChangeDecimalToValue(h_dn, 40),
             ChangeDecimalToValue(s_dn, 60),
-            run_time=3
+            run_time=2
         )
         self.wait()
         self.next_slide()
@@ -548,7 +548,7 @@ class Main(Slide,MovingCameraScene):
         zoom_out_factor = max(target_width / config.frame_width, target_height / config.frame_height)
         self.play(
             self.camera.frame.animate.set(width=zoom_out_factor * config.frame_width).move_to(target_center),
-            run_time=2
+            run_time=1
         )
         #self.mobjects.remove(self.camera.frame)
         keep = [title, logo, slide_number,axes]
@@ -570,8 +570,8 @@ class Main(Slide,MovingCameraScene):
             y_length=5,
             axis_config={"color": BLACK},
         )
-        x_label = newaxes.get_x_axis_label("x")
-        y_label = newaxes.get_y_axis_label("Probability Density")
+        x_label = MathTex(r"\theta").scale(0.6).next_to(newaxes.x_axis, DOWN, buff=0.5)
+        y_label = Tex(r"\text{Density}").scale(0.6).next_to(newaxes.y_axis, LEFT, buff=0.1)
 
 # Normal PDF function
         def normal_pdf(x):
@@ -582,6 +582,7 @@ class Main(Slide,MovingCameraScene):
 # Transform the axes
         self.play(Transform(axes, newaxes))  # 'axes' is assumed to be defined earlier
         self.add(x_label, y_label, graph)
+        self.play(Write(x_label), Write(y_label))
         self.wait()
 
         self.play(
@@ -596,15 +597,12 @@ class Main(Slide,MovingCameraScene):
         self.play(graph_group.animate.scale(0.8).shift(RIGHT * 3), run_time=1.5)
 
         norm_data = MathTex(
-            r"X_{i,1}\sim N(\mu_1,\sigma^2)",
-            font_size=32,
-            color=BLACK
-        )
-
-        norm_data2 = MathTex(
-            r"X_{i,2}\sim N(\mu_2,\sigma^2)",
-            font_size=32,
-            color=BLACK
+        r"\text{Data } = \begin{cases}"
+        r"X_{i,1}\sim N(\mu_1,\sigma^2) \\"
+        r"X_{i,2}\sim N(\mu_2,\sigma^2)"
+        r"\end{cases}",
+        font_size=28,
+        color=BLACK
         )
 
         latex_eq = MathTex(
@@ -612,46 +610,40 @@ class Main(Slide,MovingCameraScene):
         r"I_1 + a^{\theta/\delta}I_2 & \text{if } \theta \geq 0 \\"
         r"I_2 + a^{-\theta/\delta}I_1 & \text{if } \theta \leq 0"
         r"\end{cases}",
-        font_size=36,
+        font_size=28,
         color=BLACK
         )
-        # Create the text
-        data_text = Text("Data", color=BLACK, font_size=self.TITLE_FONT_SIZE)
-
-# Move the text to its final position FIRST
-        data_text.to_corner(UP + LEFT)
-        data_text.shift(DOWN * 1)
-        ul = Underline(data_text)
-        ul_text = VGroup(data_text, ul)
-        self.play(Write(ul_text))
 
 # Group equations
-        text_group = VGroup(norm_data, norm_data2).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
-        text_group.next_to(ul_text, DOWN, aligned_edge=LEFT, buff=0.5)
+        text_group = VGroup(norm_data).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+        text_group.to_corner(UL)
+        text_group.shift(DOWN*1 + RIGHT*0.8)
         self.play(Write(text_group))
         self.wait()
         self.next_slide()
 
 # Add in priors
-
-        theta_prior = MathTex(
-            r"\theta \sim N(\mu_1 - \mu_2,\sigma_1^2 + \sigma_2^2)",
-            font_size=36,
-            color=BLACK
+        prior_group = MathTex(
+        r"\text{Priors } = \begin{cases}"
+        r"\theta \sim N(\mu_1 - \mu_2,\sigma_1^2 + \sigma_2^2) \\"
+        r"\mu_j \sim N(\mu_j,\sigma_j^2)"
+        r"\end{cases}",
+        font_size=28,
+        color=BLACK
         )
 
-        individual_prior = MathTex(
-            r"\mu_j \sim N(\mu_j,\sigma_j^2)",
-            font_size=36,
-            color=BLACK
-        )
-        prior_group = VGroup(theta_prior, individual_prior).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+        prior_group.arrange(DOWN, aligned_edge=LEFT, buff=0.3)
         prior_group.next_to(text_group, DOWN, aligned_edge=LEFT, buff=0.5)
         self.play(Write(prior_group))
         self.wait()
         self.next_slide()
         latex_eq.next_to(prior_group,DOWN, aligned_edge=LEFT, buff=0.5)
         self.play(Write(latex_eq))
+        self.next_slide()
+        ratio_text = MathTex(r"\text{Ratio }= a^{\theta/\delta}", font_size=28,color=BLACK)
+        ratio_text.next_to(latex_eq,DOWN, aligned_edge=LEFT, buff=0.5)
+        self.play(Write(ratio_text))
+        self.next_slide()
 # Add vertical line animation
         current_x = ValueTracker(mu)
 
@@ -666,8 +658,20 @@ class Main(Slide,MovingCameraScene):
            )
         )
         self.add(vertical_line)
-        self.play(current_x.animate.set_value(mu + 1), run_time=4)
+        self.play(current_x.animate.set_value(mu + 1), run_time=3)
         self.play(current_x.animate.set_value(mu - 1), run_time=3)
+        self.wait()
+
+        # Create a static vertical line at mu to flash
+        # Create a copy of the current vertical line at mu for indication
+        highlight_line = newaxes.get_vertical_line(
+            newaxes.coords_to_point(mu, normal_pdf(mu)),
+            color=BLACK,
+            stroke_width=6
+        )
+
+        self.play(Indicate(highlight_line, scale_factor=1.2, color=YELLOW))
+        self.wait()
         self.wait()
 
 # Add and animate shaded area
