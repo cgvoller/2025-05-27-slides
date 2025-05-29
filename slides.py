@@ -3,7 +3,6 @@ import sympy as sy
 import random
 from manim import *
 from manim_slides import Slide
-import numpy as np
 from scipy.stats import norm
 
 """
@@ -443,10 +442,11 @@ class Main(Slide,MovingCameraScene):
             }
         )
         axes.next_to(cohort, DOWN, buff=1.5)
+        axes.shift(RIGHT * 1)
         x = axes.get_x_axis()
         x.numbers.set_color(BLACK)
         x_label = Tex("Analysis (k)").next_to(axes.x_axis, DOWN, buff=0.5)
-        y_label = MathTex("Z_k").next_to(axes.y_axis, LEFT)
+        y_label = MathTex("Z_k").next_to(axes.y_axis, LEFT, buff=0)
         
         self.play(
             self.camera.frame.animate.move_to(axes)
@@ -581,8 +581,6 @@ class Main(Slide,MovingCameraScene):
 
 # Transform the axes
         self.play(Transform(axes, newaxes))  # 'axes' is assumed to be defined earlier
-        self.add(x_label, y_label, graph)
-        self.play(Write(x_label), Write(y_label))
         self.wait()
 
         self.play(
@@ -591,6 +589,8 @@ class Main(Slide,MovingCameraScene):
         )
         slide_number = self.update_slide_number()
         self.play(Transform(title, title2),slide_number)
+        self.add(x_label, y_label)
+        self.play(Write(x_label), Write(y_label),Create(graph))
 
 # Group everything to scale and shift
         graph_group = VGroup(newaxes, x_label, y_label, graph)
